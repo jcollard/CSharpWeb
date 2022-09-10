@@ -1,0 +1,36 @@
+<pre>
+    @Output
+    @if (ShowInput) {
+        <input @bind-value="@Input"> <button @onclick="@SubmitInput">Submit</button>
+    }
+</pre>
+
+@code {
+    private string Output;
+    private string Input { get; set; }
+    private bool ShowInput => p.Console.IsWaitingForInput;
+    private CaptainCoder.WebConsole.Program p = new();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        p.Console.Register(Notify);
+        p.Console.RegisterClear(() => {Output = ""; StateHasChanged();});
+        p.Run();
+    }
+
+    private void Notify(CaptainCoder.WebConsole.Console console)
+    {
+        while (console.OutBuffer.Count > 0)
+        {
+            Output += console.OutBuffer.Dequeue();
+        }
+        StateHasChanged();
+    }
+
+    private void SubmitInput() {
+        p.Console.InputBuffer.Enqueue(Input);
+        Input = "";
+    }
+
+}
